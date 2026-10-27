@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shirou Emiya Arcade & Profile - MCYSTN</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,700;0,900;1,900&family=Orbitron:wght@500;700;900&family=Cinzel:wght@700;900&family=Syncopate:wght@700;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tealAccent: '#48ffd8',
+            redAccent: '#ff0033',
+            darkBg: '#08080d',
+            panelBg: 'rgba(15, 18, 28, 0.95)',
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+            display: ['Orbitron', 'sans-serif'],
+            serif: ['Cinzel', 'serif'],
+            sync: ['Syncopate', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #08080d; }
+    ::-webkit-scrollbar-thumb { background: #ff0033; border-radius: 3px; }
+    ::selection { background: #ff0033; color: #ffffff; }
+
+    .diagonal-title-banner {
+      transform: rotate(-10deg) scale(1.05);
+      background: linear-gradient(90deg, rgba(255,0,51,0.95) 0%, rgba(20,20,30,0.95) 50%, rgba(72,255,216,0.95) 100%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.85), 0 0 20px rgba(255,0,51,0.5);
+      border-top: 2px solid #48ffd8;
+      border-bottom: 2px solid #ff0033;
+    }
+
+    .grid-pattern {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    .scanlines {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+      );
+      background-size: 100% 4px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    .animate-pulse-glow { animation: pulseGlow 3s infinite ease-in-out; }
+
+    @keyframes marqueeText {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: flex;
+      width: 200%;
+      animation: marqueeText 18s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#050508] text-white min-h-screen flex flex-col items-center justify-center font-sans overflow-x-hidden p-2 sm:p-6 select-none grid-pattern">
+
+  <!-- Main Wrapper -->
+  <div class="w-full max-w-[1050px] my-auto">
+    
+    <!-- Poster Card Frame -->
+    <div id="posterCard" class="relative w-full aspect-[4/5] sm:aspect-[16/11] md:aspect-[16/10] bg-darkBg border border-gray-800/80 rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.9)] flex flex-col justify-between">
+      
+      <!-- 1. BACKGROUND LAYER -->
+      <div class="layer-bg absolute inset-0 z-0 bg-[#08080d]">
+        <div class="absolute inset-0 bg-radial gradient from-transparent via-[#08080d]/70 to-[#050508]"></div>
+        <div id="bgAuraGlow" class="absolute inset-0 opacity-40 transition-all duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-redAccent/30 via-tealAccent/10 to-transparent"></div>
+        <div class="absolute inset-0 scanlines opacity-20 pointer-events-none"></div>
+      </div>
+
+      <!-- 2. SECONDARY BACK CHARACTER LAYER -->
+      <div class="absolute inset-0 z-5 pointer-events-none flex items-center justify-center overflow-hidden">
+        <div class="relative w-full h-full flex items-center justify-center opacity-40 mix-blend-luminosity filter grayscale contrast-125">
+          <img src="https://i.ibb.co/qLy1KXVT/dado.png" alt="Background" class="w-full h-full object-cover object-center scale-105 blur-[1px]" />
+          <div class="absolute inset-0 bg-gradient-to-b from-[#12141d]/60 via-[#0a0a12]/40 to-[#08080d]/90"></div>
+        </div>
+      </div>
+
+      <!-- 4. CANVAS PARTICLE & AURA LAYER -->
+      <canvas id="particleCanvas" class="absolute inset-0 z-15 pointer-events-none w-full h-full"></canvas>
+
+      <!-- 5. MAIN CHARACTER LAYER (Restaurada con la imagen funcional) -->
+      <div id="characterLayer" class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+        <div class="relative w-full h-full flex items-center justify-center">
+          <div id="characterAura" class="absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-redAccent/20 blur-[80px] animate-pulse-glow transition-all duration-500"></div>
+ 
+          <div class="absolute inset-0 bg-gradient-to-t from-[#08080d] via-transparent to-transparent opacity-80"></div>
+        </div>
+      </div>
+
+      <!-- 7. DIAGONAL TITLE BANNER -->
+      <div class="absolute inset-0 z-30 pointer-events-none flex items-end justify-center pb-28 sm:pb-36 overflow-hidden">
+        <div class="diagonal-title-banner w-[140%] py-2 sm:py-3 flex items-center justify-center transform">
+          <div class="flex items-center space-x-6 text-center">
+            <span class="font-display font-black text-lg sm:text-2xl lg:text-3xl tracking-wider text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+              Shirou<span class="text-tealAccent">Xatspace </span>
+            </span>
+            <i class="fa-solid fa-bolt text-redAccent text-base sm:text-xl animate-bounce"> </i>
+            <span class="font-display font-black text-lg sm:text-2xl lg:text-3xl tracking-wider text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] hidden sm:inline">
+            Arcade <span class="text-redAccent"> (1525823861)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. INTERACTIVE UI OVERLAY LAYER -->
+      <div class="relative z-40 h-full flex flex-col justify-between p-3 sm:p-6 pointer-events-none">
+        
+        <!-- TOP HEADER BAR -->
+        <div class="flex items-center justify-between w-full pointer-events-auto">
+          <button onclick="cycleAuraTheme(); playRetroClick();" id="themeSelectorBtn" class="flex items-center space-x-2 bg-panelBg backdrop-blur-md px-4 py-2 rounded-full border border-tealAccent/40 shadow-lg hover:border-tealAccent transition-all cursor-pointer group">
+            <div class="w-6 h-6 rounded-full bg-redAccent flex items-center justify-center text-xs font-bold text-white shadow-[0_0_8px_#ff0033] group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-palette text-[10px]"></i>
+            </div>
+            <span id="themeBtnText" class="font-display font-bold text-xs sm:text-sm text-tealAccent">
+              AURA: TRACE ON
+            </span>
+          </button>
+
+          <!-- NAVIGATION TABS -->
+          <nav class="flex items-center space-x-2 sm:space-x-6 bg-panelBg backdrop-blur-md px-4 sm:px-6 py-1.5 rounded-full border border-gray-700/50 shadow-lg">
+            <button id="navHome" onclick="switchTab('home'); playRetroClick();" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-tealAccent transition-colors">
+              HOME (ARCADE)
+            </button>
+            <button id="navProfile" onclick="switchTab('profile'); playRetroClick();" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-300 hover:text-tealAccent transition-colors">
+              PROFILE
+            </button>
+            <button id="navAmigos" onclick="switchTab('amigos'); playRetroClick();" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-300 hover:text-tealAccent transition-colors">
+              AMIGOS
+            </button>
+          </nav>
+        </div>
+
+        <!-- MIDDLE BODY CONTENT (TABS CONTAINER) -->
+        <div class="flex items-center justify-center my-auto w-full">
+          
+          <!-- 1. HOME TAB (ARCADE) -->
+          <div id="homeTabContent" class="pointer-events-auto w-full max-w-xl mx-auto bg-darkBg/95 backdrop-blur-xl border border-tealAccent/50 p-5 rounded-2xl shadow-2xl z-50 flex flex-col items-center">
+            <div class="flex items-center justify-between w-full border-b border-gray-800 pb-2 mb-3">
+              <h3 class="font-display font-bold text-sm text-tealAccent flex items-center gap-2">
+                <i class="fa-solid fa-gamepad text-xs"></i> ASTRO DODGE // ARCADE CABINET
+              </h3>
+              <div class="flex items-center gap-4 text-xs font-display">
+                <span id="highScoreDisplay" class="text-tealAccent font-bold">RÉCORD: 0</span>
+                <span id="scoreDisplay" class="text-redAccent font-bold">SCORE: 0</span>
+              </div>
+            </div>
+
+            <!-- JUEGO ARCADE -->
+            <div class="relative w-full aspect-[16/9] bg-black rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center shadow-inner">
+              <canvas id="arcadeCanvas" class="w-full h-full block"></canvas>
+              
+              <div id="arcadeOverlay" class="absolute inset-0 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-6">
+                <h4 id="overlayTitle" class="font-display font-black text-2xl text-tealAccent mb-2">ASTRO DODGE</h4>
+                <p id="overlaySub" class="text-xs text-gray-300 mb-4">Ingresa tu nombre y esquiva los meteoritos.</p>
+                
+                <input type="text" id="playerNameInput" placeholder="Tu Nickname" maxlength="12" class="mb-4 px-4 py-2 bg-gray-900 border border-tealAccent/50 rounded-xl text-center font-display text-xs text-white focus:outline-none focus:border-tealAccent shadow-lg w-48" />
+                
+                <button onclick="startArcadeGame(); playRetroClick();" class="px-8 py-3 bg-gradient-to-r from-tealAccent to-emerald-500 text-black font-display font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_#48ffd8] hover:scale-105 transition-transform">
+                  INICIAR PARTIDA
+                </button>
+              </div>
+            </div>
+
+            <!-- CONTROLES TÁCTILES ARCADE -->
+            <div class="flex items-center justify-between w-full mt-3 gap-3">
+              <button id="btnLeft" class="flex-1 py-2.5 bg-gray-900 border border-gray-700 hover:border-tealAccent rounded-xl text-tealAccent font-display font-bold text-xs active:bg-tealAccent active:text-black transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> IZQUIERDA
+              </button>
+              <button id="btnRight" class="flex-1 py-2.5 bg-gray-900 border border-gray-700 hover:border-tealAccent rounded-xl text-tealAccent font-display font-bold text-xs active:bg-tealAccent active:text-black transition-colors">
+                DERECHA <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. PROFILE TAB (REPRODUCTOR DE MÚSICA SUBIDO HACIA ARRIBA A LA DERECHA) -->
+          <div id="profileTabContent" class="hidden pointer-events-auto w-full flex items-start justify-end pt-4 px-6 sm:px-12 z-50">
+            <div class="bg-panelBg/95 backdrop-blur-xl p-5 rounded-2xl border border-tealAccent/50 shadow-2xl w-80 sm:w-96 flex flex-col items-center gap-4 text-center">
+              <div class="flex items-center gap-3 w-full border-b border-gray-800 pb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-redAccent to-darkBg flex items-center justify-center text-tealAccent shadow-[0_0_12px_#ff0033] flex-shrink-0">
+                  <i class="fa-solid fa-music text-lg"></i>
+                </div>
+                <div class="overflow-hidden text-left">
+                  <h4 id="songTitle" class="font-display font-bold text-xs sm:text-sm text-white truncate">Track 1</h4>
+                  <p id="songArtist" class="text-[10px] text-gray-400">assets/0.mp3 — ҂shirou</p>
+                </div>
+              </div>
+
+              <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden cursor-pointer" id="progressBarContainer">
+                <div id="progressBar" class="bg-tealAccent h-full w-0 transition-all"></div>
+              </div>
+
+              <div class="flex items-center justify-between w-full text-xs text-tealAccent px-2">
+                <button id="btnPrevTrack" onclick="changeTrack(-1); playRetroClick();" class="text-gray-400 hover:text-white"><i class="fa-solid fa-backward-step"></i></button>
+                <button id="btnPlayAudio" onclick="togglePlayMusic(); playRetroClick();" class="px-4 py-2 bg-tealAccent/20 hover:bg-tealAccent hover:text-black border border-tealAccent/50 rounded-xl font-display font-bold text-xs transition-all">
+                  <i class="fa-solid fa-play mr-1"></i> REPRODUCIR
+                </button>
+                <button id="btnNextTrack" onclick="changeTrack(1); playRetroClick();" class="text-gray-400 hover:text-white"><i class="fa-solid fa-forward-step"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. AMIGOS TAB (CON REDIRECCIONADORES) -->
+          <div id="amigosTabContent" class="hidden pointer-events-auto w-full max-w-lg mx-auto bg-panelBg/95 backdrop-blur-xl border border-tealAccent/30 p-5 rounded-2xl shadow-2xl z-50">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
+              <h3 class="font-display font-bold text-sm text-tealAccent flex items-center gap-2">
+                <i class="fa-solid fa-user-group text-xs"></i> RED DE AMIGOS (6)
+              </h3>
+              <span class="text-[9px] font-display text-gray-400">ONLINE</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <a href="https://github.com" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alex" alt="Amigo" class="w-10 h-10 rounded-full border border-tealAccent/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">Alex_Rider</span>
+                <span class="text-[9px] text-tealAccent">@alex_r</span>
+              </a>
+              <a href="https://discord.com" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Shadow" alt="Amigo" class="w-10 h-10 rounded-full border border-redAccent/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">Shadow_MC</span>
+                <span class="text-[9px] text-redAccent">@shadow</span>
+              </a>
+              <a href="https://twitter.com" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Kuro" alt="Amigo" class="w-10 h-10 rounded-full border border-tealAccent/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">CyberKuro</span>
+                <span class="text-[9px] text-tealAccent">@kuro99</span>
+              </a>
+              <a href="https://twitch.tv" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Nova" alt="Amigo" class="w-10 h-10 rounded-full border border-amber-500/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">Nova_Blade</span>
+                <span class="text-[9px] text-amber-400">@novablade</span>
+              </a>
+              <a href="https://steamcommunity.com" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Vortex" alt="Amigo" class="w-10 h-10 rounded-full border border-tealAccent/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">Vortex_07</span>
+                <span class="text-[9px] text-tealAccent">@vortex</span>
+              </a>
+              <a href="https://youtube.com" target="_blank" onclick="playRetroClick()" class="bg-darkBg/90 border border-gray-800 hover:border-tealAccent/50 p-3 rounded-xl flex flex-col items-center text-center transition-all group">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Phantom" alt="Amigo" class="w-10 h-10 rounded-full border border-redAccent/40 mb-1.5" />
+                <span class="font-display font-bold text-xs text-white group-hover:text-tealAccent">Phantom_X</span>
+                <span class="text-[9px] text-redAccent">@px_hero</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM FOOTER SECTION -->
+        <div class="w-full space-y-2 pointer-events-auto">
+          <div class="w-full overflow-hidden bg-black/60 backdrop-blur-sm py-1.5 rounded-lg border border-gray-900">
+            <div class="animate-marquee whitespace-nowrap font-display text-[9px] text-gray-400 tracking-[0.3em] uppercase">
+              <span>MCYSTN DESIGN /// ARCADE HERO /// FATE STAY NIGHT /// UNLIMITED BLADE WORKS /// TRACE ON /// ҂SHIROU /// 1525823861 ///</span>
+              <span>MCYSTN DESIGN /// ARCADE HERO /// FATE STAY NIGHT /// UNLIMITED BLADE WORKS /// TRACE ON /// ҂SHIROU /// 1525823861 ///</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    // Web Audio API para Sonidos Retro Sintetizados
+    let audioCtx = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playRetroClick() {
+      try {
+        initAudioContext();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {
+        console.log("Audio restringido por el navegador", e);
+      }
+    }
+
+    function playRetroExplosion() {
+      try {
+        initAudioContext();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {}
+    }
+
+    // Partículas de fondo
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    const card = document.getElementById('posterCard');
+
+    function resizeCanvas() {
+      const rect = card.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let particles = [];
+    let currentModeIndex = 0;
+    const modes = [
+      { name: "AURA: TRACE ON", primaryColor: "#48ffd8", secondaryColor: "#ff0033", count: 60, speed: 1.5 },
+      { name: "AURA: OVEREDGE", primaryColor: "#ff0033", secondaryColor: "#ffffff", count: 90, speed: 2.5 },
+      { name: "AURA: UNLIMITED", primaryColor: "#ffaa00", secondaryColor: "#48ffd8", count: 70, speed: 1.8 }
+    ];
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 20;
+        this.size = Math.random() * 2.5 + 1;
+        const mode = modes[currentModeIndex];
+        this.speedY = -(Math.random() * mode.speed + 0.8);
+        this.speedX = (Math.random() - 0.5) * 1.2;
+        this.color = Math.random() > 0.4 ? mode.primaryColor : mode.secondaryColor;
+        this.alpha = Math.random() * 0.8 + 0.2;
+        this.life = 0;
+        this.maxLife = Math.random() * 100 + 60;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life++;
+        if (this.y < -10 || this.life >= this.maxLife) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha * (1 - this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < modes[currentModeIndex].count; i++) particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    initParticles();
+    animateParticles();
+
+    // Cambio de Auras
+    const themeBtnText = document.getElementById('themeBtnText');
+    const characterAura = document.getElementById('characterAura');
+    const bgAuraGlow = document.getElementById('bgAuraGlow');
+
+    function cycleAuraTheme() {
+      currentModeIndex = (currentModeIndex + 1) % modes.length;
+      const activeMode = modes[currentModeIndex];
+      themeBtnText.textContent = activeMode.name;
+
+      if (currentModeIndex === 0) {
+        characterAura.className = "absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-tealAccent/20 blur-[80px] animate-pulse-glow transition-all duration-500";
+        bgAuraGlow.className = "absolute inset-0 opacity-40 transition-all duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-tealAccent/30 via-redAccent/10 to-transparent";
+      } else if (currentModeIndex === 1) {
+        characterAura.className = "absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-redAccent/40 blur-[90px] animate-pulse-glow transition-all duration-500";
+        bgAuraGlow.className = "absolute inset-0 opacity-50 transition-all duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-redAccent/40 via-black to-transparent";
+      } else {
+        characterAura.className = "absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-amber-500/30 blur-[80px] animate-pulse-glow transition-all duration-500";
+        bgAuraGlow.className = "absolute inset-0 opacity-40 transition-all duration-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-500/30 via-tealAccent/10 to-transparent";
+      }
+      initParticles();
+    }
+
+    // Pestañas (Tabs)
+    function switchTab(tabName) {
+      const homeTab = document.getElementById('homeTabContent');
+      const profileTab = document.getElementById('profileTabContent');
+      const amigosTab = document.getElementById('amigosTabContent');
+      const characterLayer = document.getElementById('characterLayer');
+      
+      const navHome = document.getElementById('navHome');
+      const navProfile = document.getElementById('navProfile');
+      const navAmigos = document.getElementById('navAmigos');
+
+      [navHome, navProfile, navAmigos].forEach(btn => btn.className = "text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-300 hover:text-tealAccent transition-colors");
+
+      homeTab.classList.add('hidden');
+      profileTab.classList.add('hidden');
+      amigosTab.classList.add('hidden');
+      characterLayer.style.display = 'none';
+
+      if (tabName === 'home') {
+        homeTab.classList.remove('hidden');
+        navHome.className = "text-[10px] sm:text-xs font-bold uppercase tracking-wider text-tealAccent transition-colors";
+      } else if (tabName === 'profile') {
+        profileTab.classList.remove('hidden');
+        characterLayer.style.display = 'flex';
+        navProfile.className = "text-[10px] sm:text-xs font-bold uppercase tracking-wider text-tealAccent transition-colors";
+      } else if (tabName === 'amigos') {
+        amigosTab.classList.remove('hidden');
+        navAmigos.className = "text-[10px] sm:text-xs font-bold uppercase tracking-wider text-tealAccent transition-colors";
+      }
+    }
+
+    // Reproductor de Música (assets/0.mp3, assets/1.mp3, assets/2.mp3)
+    const playlist = [
+      { title: "Track 1", file: "assets/0.mp3" },
+      { title: "Track 2", file: "assets/1.mp3" },
+      { title: "Track 3", file: "assets/2.mp3" }
+    ];
+    let currentTrackIdx = 0;
+    const audioElement = new Audio(playlist[currentTrackIdx].file);
+    let isPlayingAudio = false;
+
+    const btnPlayAudio = document.getElementById('btnPlayAudio');
+    const songTitle = document.getElementById('songTitle');
+    const songArtist = document.getElementById('songArtist');
+    const progressBar = document.getElementById('progressBar');
+
+    function togglePlayMusic() {
+      if (isPlayingAudio) {
+        audioElement.pause();
+        isPlayingAudio = false;
+        btnPlayAudio.innerHTML = '<i class="fa-solid fa-play mr-1"></i> REPRODUCIR';
+      } else {
+        audioElement.play().then(() => {
+          isPlayingAudio = true;
+          btnPlayAudio.innerHTML = '<i class="fa-solid fa-pause mr-1"></i> PAUSAR';
+        }).catch(err => {
+          console.log("Error al reproducir audio:", err);
+          alert("Asegúrate de tener los archivos de audio en la ruta assets/ (assets/0.mp3, assets/1.mp3, assets/2.mp3)");
+        });
+      }
+    }
+
+    function changeTrack(direction) {
+      audioElement.pause();
+      currentTrackIdx = (currentTrackIdx + direction + playlist.length) % playlist.length;
+      audioElement.src = playlist[currentTrackIdx].file;
+      songTitle.textContent = playlist[currentTrackIdx].title;
+      songArtist.textContent = `${playlist[currentTrackIdx].file} — ҂shirou`;
+      if (isPlayingAudio) {
+        audioElement.play();
+      }
+    }
+
+    audioElement.addEventListener('timeupdate', () => {
+      if (audioElement.duration) {
+        const pct = (audioElement.currentTime / audioElement.duration) * 100;
+        progressBar.style.width = `${pct}%`;
+      }
+    });
+
+    audioElement.addEventListener('ended', () => {
+      changeTrack(1);
+    });
+
+    // Juego Arcade (Astro Dodge) con Guardado de Récord y Nickname
+    let gameInterval = null;
+    let arcadeRunning = false;
+    let score = 0;
+    let highScore = localStorage.getItem('arcade_highscore') || 0;
+    let shipX = 200;
+    let meteors = [];
+
+    document.getElementById('highScoreDisplay').textContent = `RÉCORD: ${highScore}`;
+
+    function startArcadeGame() {
+      const nick = document.getElementById('playerNameInput').value.trim() || 'Jugador';
+      document.getElementById('arcadeOverlay').classList.add('hidden');
+      score = 0;
+      shipX = 200;
+      meteors = [];
+      arcadeRunning = true;
+      document.getElementById('scoreDisplay').textContent = `SCORE: 0`;
+      
+      const arcadeCanvas = document.getElementById('arcadeCanvas');
+      arcadeCanvas.width = arcadeCanvas.parentElement.clientWidth;
+      arcadeCanvas.height = arcadeCanvas.parentElement.clientHeight;
+
+      if (gameInterval) clearInterval(gameInterval);
+      gameInterval = setInterval(updateArcade, 1000 / 60);
+    }
+
+    function updateArcade() {
+      if (!arcadeRunning) return;
+      const arcadeCanvas = document.getElementById('arcadeCanvas');
+      const actx = arcadeCanvas.getContext('2d');
+
+      actx.clearRect(0, 0, arcadeCanvas.width, arcadeCanvas.height);
+
+      // Dibujar nave
+      actx.fillStyle = '#48ffd8';
+      actx.beginPath();
+      actx.moveTo(shipX, arcadeCanvas.height - 25);
+      actx.lineTo(shipX - 14, arcadeCanvas.height - 8);
+      actx.lineTo(shipX + 14, arcadeCanvas.height - 8);
+      actx.fill();
+
+      // Generar meteoritos
+      if (Math.random() < 0.05) {
+        meteors.push({
+          x: Math.random() * (arcadeCanvas.width - 20),
+          y: -20,
+          size: Math.random() * 12 + 8,
+          speed: Math.random() * 3 + 2.5
+        });
+      }
+
+      // Actualizar meteoritos
+      actx.fillStyle = '#ff0033';
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        let m = meteors[i];
+        m.y += m.speed;
+        actx.beginPath();
+        actx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+        actx.fill();
+
+        // Colisión
+        if (m.y + m.size >= arcadeCanvas.height - 25 && m.x >= shipX - 20 && m.x <= shipX + 20) {
+          arcadeRunning = false;
+          clearInterval(gameInterval);
+          playRetroExplosion();
+          if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('arcade_highscore', highScore);
+            document.getElementById('highScoreDisplay').textContent = `RÉCORD: ${highScore}`;
+          }
+          document.getElementById('overlayTitle').textContent = "GAME OVER";
+          document.getElementById('overlaySub').textContent = `Puntuación Final: ${score} | ¡Récord guardado!`;
+          document.getElementById('arcadeOverlay').classList.remove('hidden');
+        }
+
+        if (m.y > arcadeCanvas.height + 20) {
+          meteors.splice(i, 1);
+          score += 10;
+          document.getElementById('scoreDisplay').textContent = `SCORE: ${score}`;
+        }
+      }
+    }
+
+    document.getElementById('btnLeft').addEventListener('click', () => { shipX = Math.max(20, shipX - 30); playRetroClick(); });
+    document.getElementById('btnRight').addEventListener('click', () => { 
+      const arcadeCanvas = document.getElementById('arcadeCanvas');
+      shipX = Math.min(arcadeCanvas.width - 20, shipX + 30); 
+      playRetroClick();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const arcadeCanvas = document.getElementById('arcadeCanvas');
+      if (e.key === 'ArrowLeft') { shipX = Math.max(20, shipX - 30); playRetroClick(); }
+      if (e.key === 'ArrowRight') { shipX = Math.min(arcadeCanvas.width - 20, shipX + 30); playRetroClick(); }
+    });
+  </script>
+</body>
+</html>S
